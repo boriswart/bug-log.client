@@ -8,7 +8,7 @@
 
 <script>
 import { computed } from 'vue'
-import { AppState } from '../AppState'
+import { AppState } from './src/AppState'
 export default {
   name: 'Account',
   setup() {

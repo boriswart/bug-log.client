@@ -6,9 +6,10 @@ class NotesService {
   async getNotes(id) {
     try {
       let res = null
-      res = await api.get('/api/bugs/' + id + '/notes')
-
-      AppState.notes = res.data
+      res = await api.get('/api/notes?bug=' + id)
+      if (id) {
+        AppState.notes = res.data // .find(n => n.bug === id)
+      }
       logger.log('Check getNotes', res.data)
     } catch (err) {
       logger.error('Problem in NotesService getNotes', err)
@@ -17,7 +18,7 @@ class NotesService {
 
   async createNote(data) {
     try {
-      logger.log('createNote', data)
+      // logger.log('createNote', data)
       let res = null
       res = await api.post('/api/notes', data)
       logger.log(res.data)

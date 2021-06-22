@@ -1,74 +1,94 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-12 m-auto d-flex">
-        <div v-if="activeBug!=={}" class="card mt-5" style="max-width: 560px;">
-          <div class="row g-0">
-            <div v-if="activeBug.creatorId" class="col-md-4">
-              <img :src="activeBug.creatorId.picture" class="rounded-pill" alt="nogetty">
+      <div class="col-12">
+        <button
+          class="btn btn-danger"
+          @click="deleteBug()"
+        >
+          Del (close it)
+        </button>
+        <div class="col d-flex w-100 mr-5 pr-5">
+          <div class="col m-auto d-flex">
+            <div
+              v-if="activeBug!=={}"
+              class="card mt-5"
+              style="max-width: 560px;"
+            >
             </div>
-            <div v-else class="col-md-4 p-2">
-              <img :src="activeBug.creatorId" class="rounded-pill py-2" alt="nogetty">
-            </div>
-            <div class="col-md-8">
-              <h5 class="card-title">
-                {{ activeBug.title }}
-              </h5>
-              <div v-if="activeBug.creatorId" class="card-body">
-                {{ activeBug.creatorId.email }}
-                <p class="card-text">
-                  {{ activeBug.description }}
-                </p>
-                <p class="card-text">
-                  email(name):
-                  {{ activeBug.creatorId.name }}
-                </p>
-                <p class="card-text">
-                  created:
-                  <small class="text-muted">
-                    {{ activeBug.createdAt.split('T')[0].split('-').splice(1,2)[0] }}
-                    {{ activeBug.createdAt.split('T')[0].split('-').splice(1,2)[1] }}
-                    {{ (activeBug.createdAt.split('T')[0].split('-').splice(0,1))[0] }}</small>
-                </p>
-                <p class="card-text">
-                  updated:
-                  <small class="text-muted">
-                    {{ activeBug.updatedAt.split('T')[0].split('-').splice(1,2)[0] }}
-                    {{ activeBug.updatedAt.split('T')[0].split('-').splice(1,2)[1] }}
-                    {{ (activeBug.updatedAt.split('T')[0].split('-').splice(0,1))[0] }}</small>
-                </p>
-                <button class="btn btn-danger" @click="deleteBug()">
-                  Del
-                </button>
+            <div class="row">
+              <div class="col">
+                <div
+                  v-if="activeBug.creatorId"
+                  class="col-md-12 my-5"
+                >
+                  <div class="card mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                      <div class="col-12">
+                        <img :src="activeBug.creatorId.picture" class="rounded-pill py-2" alt="nogetty">
+                      </div>
+                      <div class="col-md-8">
+                        <div class="card-body">
+                          <h5 class="card-title">
+                            {{ activeBug.title }}
+                          </h5>
+                          <p class="card-text">
+                            {{ activeBug.description }}
+                          </p><p>
+                            {{ activeBug.creatorId.email }}
+                          </p>
+                          Status:<p>
+                            {{ (activeBug.closed == true) ? "Closed" : "Open" }}
+                          </p>
+                          <p class="card-text">
+                            <small class="text-muted">
+                              <p> created:
+                                <small class="text-muted">
+                                  {{ activeBug.createdAt.split('T')[0].split('-').splice(1,2)[0] }}
+                                  {{ activeBug.createdAt.split('T')[0].split('-').splice(1,2)[1] }}
+                                  {{ (activeBug.createdAt.split('T')[0].split('-').splice(0,1))[0] }}</small>
+                              </p>
+                              <p>
+                                updated:
+                                <small class="text-muted">
+                                  {{ activeBug.updatedAt.split('T')[0].split('-').splice(1,2)[0] }}
+                                  {{ activeBug.updatedAt.split('T')[0].split('-').splice(1,2)[1] }}
+                                  {{ (activeBug.updatedAt.split('T')[0].split('-').splice(0,1))[0] }}
+                                </small>
+                              </p>
+                            </small>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <form @submit.prevent="createNote()">
+                    <input class="form-control"
+                           v-model="state.newNote.body"
+                           required="true"
+                           placeholder="add new Note"
+                    />
+                    <button type="submit"
+                            class="btn"
+                            :disabled="!state.newNote "
+                            :class="{
+                              'btn-primary': state.newNote.body,
+                              'btn-danger': !state.newNote.body
+                            }"
+                    >
+                      Report
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
-          </div>
-          <div v-for="note in notes" :key="note.id">
-            {{ note.body }} {{ note.creatorId.name }} {{ note.creatorId.picture }}
+            <Notes class="col-md-6 my-5 border" />
           </div>
         </div>
-        <form @submit.prevent="createNote()">
-          <div class="d-flex w-100 mr-5 pr-5 align-items-right">
-            <textarea class="form-control" v-model="state.newNote.body" required="true" placeholder="add new Note"></textarea>
-            <!-- <input type="text" class="form-control" required="true" placeholder="Add new Note.." v-model="state.newNote.body"> -->
-            <button type="submit"
-                    class="btn"
-                    :disabled="!state.newNote "
-                    :class="{
-                      'btn-primary': state.newNote.body,
-                      'btn-danger': !state.newNote.body
-                    }"
-            >
-              Report:
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
-  <router-view></router-view>
 </template>
-
 <script>
 import { useRoute } from 'vue-router'
 import { computed, reactive, watchEffect } from '@vue/runtime-core'
@@ -79,12 +99,14 @@ import { notesService } from '../services/NotesService'
 export default {
   setup() {
     const route = useRoute()
+    // onMounted(() => { notesService.getNotes(AppState.activeBug.id) })
     watchEffect(() => {
       bugsService.getBugDetails(route.params.id)
-      notesService.getNotes(AppState.activeBug.id)
+      // notesService.getNotes(AppState.activeBug.id)
     })
     const state = reactive({
-      newNote: { bug: {}, body: '' }
+      newNote: { bug: {}, body: '' },
+      notes: computed(() => AppState.notes)
     })
     return {
       state,
