@@ -1,6 +1,8 @@
 import { AppState } from '../AppState'
 import { logger } from '../utils/Logger'
 import { api } from './AxiosService'
+import { router } from '../router'
+
 // import { account } from '../AppState.js'
 
 class BugsService {
@@ -46,6 +48,7 @@ class BugsService {
 
       logger.log(res.data)
       AppState.activeBug = res.data
+      router.push({ name: 'bug-details', params: { id: res.data.id } })
       // logger.log('Updata Bug', res.data)
     } catch (err) {
       logger.error('Problem in BugsService Create Bugss', err)

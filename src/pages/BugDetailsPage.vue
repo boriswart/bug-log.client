@@ -8,10 +8,10 @@
         >
           Del (close it)
         </button>
-        <div class="col d-flex w-100 mr-5 pr-5">
-          <div class="col m-auto d-flex">
+        <div class="col d-flex m-auto w-100 mr-5 pr-5">
+          <div class="col d-flex">
             <div
-              v-if="activeBug!=={}"
+              v-if="activeBug"
               class="card mt-5"
               style="max-width: 560px;"
             >
@@ -79,10 +79,10 @@
                       Report
                     </button>
                   </form>
+                  <Notes class="col-md-6 my-5 border" />
                 </div>
               </div>
             </div>
-            <Notes class="col-md-6 my-5 border" />
           </div>
         </div>
       </div>
@@ -97,6 +97,15 @@ import { bugsService } from '../services/BugsService'
 import { notesService } from '../services/NotesService'
 
 export default {
+  // props: { note: { type: Object, required: true } },
+  // export default {
+  // props: {
+  //   movie: { type: Object, required: true }
+  // },
+  // setup(props) {
+  //   return {
+  //     setActiveMovie() {
+  //       AppState.activeMovie = props.movie
   setup() {
     const route = useRoute()
     // onMounted(() => { notesService.getNotes(AppState.activeBug.id) })
@@ -110,6 +119,9 @@ export default {
     })
     return {
       state,
+      deleteNote() {
+        notesService.deleteNote()
+      },
       bugs: computed(() => AppState.bugs),
       notes: computed(() => AppState.notes),
       activeBug: computed(() => AppState.activeBug),

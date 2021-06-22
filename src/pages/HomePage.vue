@@ -48,7 +48,7 @@
         </div>
         <div v-if="bugs">
           <div v-for="bug in bugs" :key="bug.id" class="d-flex border">
-            <div v-if="!bug.status || state.filterClosed " class="col-12 d-flex border">
+            <div v-if=" state.filterClosed || !bug.closed" class="col-12 d-flex border">
               <div
                 class="row row-cols-4 justify-content-center"
                 style="color: var(--dark)"
@@ -59,6 +59,7 @@
                   {{
                     bug.title
                   }}
+                  {{ !bug.closed }}
                 </div>
               </router-link>
               <div v-if="bug.creatorId" class="col">
@@ -90,26 +91,25 @@
 import { computed, reactive } from '@vue/runtime-core'
 import { AppState } from '../AppState'
 import { bugsService } from '../services/BugsService'
-import { router } from '../router'
+
 // import Notification from '../utils/Notification'
 export default {
   setup() {
     bugsService.getBugs()
     const state = reactive({
       newBug: { title: '', description: '' },
-      activeBug: AppState.activeBug,
+      activeBug: computed(() => AppState.activeBug),
       filterClosed: true
     })
     return {
       state,
       account: computed(() => AppState.account),
       bugs: computed(() => AppState.bugs),
-      activeBug: computed(() => AppState.activeBug),
 
       createBug() {
         AppState.newBug = state.newBug
         bugsService.createBug(AppState.newBug)
-        router.push({ name: 'bug-details', params: state.activeBug.id })
+        // router.push({ name: 'bug-details', params: { id: state.activeBug.id } })
       },
       editBug(id) {
         bugsService.updateBug()

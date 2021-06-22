@@ -3,10 +3,9 @@ import { logger } from '../utils/Logger'
 import { api } from './AxiosService'
 
 class NotesService {
-  async getNotes(id) {
+  async getNotes(id) { // presume id is bugId
     try {
-      let res = null
-      res = await api.get('/api/notes?bug=' + id)
+      const res = await api.get('/api/bugs/' + id + '/notes')
       if (id) {
         AppState.notes = res.data // .find(n => n.bug === id)
       }
@@ -31,7 +30,7 @@ class NotesService {
   async deleteNote(id, data) {
     try {
       let res = null
-      res = await api.delete('/Notes/' + id, data)
+      res = await api.delete('api/notes/' + id, data)
 
       logger.log(res.data)
       // AppState.Notes = res.data
